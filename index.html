@@ -108,7 +108,7 @@
     <!-- 3: ADD MEMBER -->
     <section class="screen" id="os3">
       <h3>Naya Member Add Karo</h3>
-      <p class="sub">Member ka data bharo — wo turant member login se apna account dekh payega.</p>
+      <p class="sub">Member ka data bharo — wo turant apne phone se login kar payega.</p>
       <div class="card">
         <input class="input" id="fName" placeholder="Pura naam (e.g. Aman Sharma)">
         <input class="input" id="fPhone" placeholder="Mobile number (10 digit)" inputmode="numeric" maxlength="10">
@@ -142,8 +142,8 @@
         <button class="btn" onclick="changePin()">PIN Change Karo</button>
         <div id="sMsg" class="msg" style="display:none"></div>
       </div>
-      <h3>⚠️ Data Note</h3>
-      <p class="sub">Data isi browser/device me save hota hai (localStorage). Naya phone ya browser use karne se pehle PIN note kar lena — naye device me list khaali milegi aur PIN dobara set karna padega.</p>
+      <h3>☁️ Cloud Sync</h3>
+      <p class="sub" id="cloudInfo">⚠️ Local Mode — data sirf isi browser me save hota hai. Cloud sync ke liye Firebase setup karo (README dekho). Screen ke upar-right badge me "☁️ Cloud sync ON" dikhega to cloud active hai.</p>
     </section>
   </div>
 </div>
@@ -195,7 +195,7 @@
   </div>
 </div>
 
-<footer>FitZone Fitness — Data isi device me save hota hai · Payment gateway baad me judega</footer>
+<footer>FitZone Fitness · Payments gateway baad me judega</footer>
 
 <script>
 // ---------- DATA (localStorage) ----------
@@ -204,12 +204,10 @@ function load(){ try{return JSON.parse(localStorage.getItem(KEY))||{pin:null,mem
 function save(d){ localStorage.setItem(KEY,JSON.stringify(d)) }
 let D=load(), curMember=null;
 
-const PLANS={Monthly:{days:30,price:999},Quarterly:{days:90,price:2499},'Half-yearly':{days:180,price:4499},Yearly:{days:365,price:7999}};
-
 // ---------- LOGIN GATE ----------
 (function initGate(){
-  if(D.pin){ document.getElementById('ownerEnterPin').style.display='block'; }
-  else { document.getElementById('ownerSetPin').style.display='block'; }
+  document.getElementById('ownerSetPin').style.display = D.pin ? 'none' : 'block';
+  document.getElementById('ownerEnterPin').style.display = D.pin ? 'block' : 'none';
 })();
 
 function showMsg(id,txt,ok){
@@ -257,6 +255,8 @@ function logout(){
   document.getElementById('loginGate').style.display='';
   ['mMsg','oMsg','aMsg','sMsg','cMsg','rMsg'].forEach(i=>document.getElementById(i).style.display='none');
   document.getElementById('mPhone').value=''; document.getElementById('pinInput').value='';
+  document.getElementById('ownerSetPin').style.display = D.pin ? 'none' : 'block';
+  document.getElementById('ownerEnterPin').style.display = D.pin ? 'block' : 'none';
   window.scrollTo({top:0});
 }
 
@@ -272,7 +272,7 @@ function renderOwner(){
      <div class="kpi"><b style="color:var(--amber)">${expSoon.length}</b><span>Expiring ≤7 din</span></div>
      <div class="kpi"><b style="color:var(--red)">${D.members.length-active.length}</b><span>Expired</span></div>`;
   document.getElementById('expList').innerHTML = expSoon.length
-    ? expSoon.map(m=>`<li class="row"><span>${b(m.name)} · ${m.plan}<br><span class="sub" style="margin:0">${m.expiry} — <b style="color:var(--amber)">${daysLeft(m.expiry)} din</b></span></span></li>`).join('')
+    ? expSoon.map(m=>`<li class="row"><span>${esc(m.name)} · ${m.plan}<br><span class="sub" style="margin:0">${m.expiry} — <b style="color:var(--amber)">${daysLeft(m.expiry)} din</b></span></span></li>`).join('')
     : '<li class="sub" style="margin:0">Koi membership 7 din me khatam nahi ho rahi ✓</li>';
   document.getElementById('memberList').innerHTML = D.members.length
     ? D.members.map(m=>`<li class="row"><span><b>${esc(m.name)}</b> · ${m.phone}<br><span class="sub" style="margin:0">${m.plan} · expiry ${m.expiry}</span></span><span><span class="badge ${daysLeft(m.expiry)>=0?'b-green':'b-red'}">${daysLeft(m.expiry)>=0?'ACTIVE':'EXPIRED'}</span> <button class="btn sm red" onclick="delMember('${m.id}')">❌</button></span></li>`).join('')
@@ -282,7 +282,7 @@ function renderOwner(){
 
 function renderReqs(){
   const html=D.requests.length
-    ? D.requests.map(r=>`<li class="row"><span><b>${esc(r.name)}</b> · ${r.phone}<br><span class="sub" style="margin:0">${r.plan} · request: ${r.date}</span></span><button class="btn sm dark" onclick="clearReq('${r.id}')">Done ✓</button></li>`).join('')
+    ? D.requests.map(r=>`<li class="row"><span><b>${esc(r.name)}</b> · ${r.phone}<br><span class="sub" style="margin:0">${r.plan} ₹${r.price} · request: ${r.date}</span></span><button class="btn sm dark" onclick="clearReq('${r.id}')">Done ✓</button></li>`).join('')
     : '<li class="sub" style="margin:0">Koi renewal request pending nahi hai.</li>';
   document.getElementById('reqList').innerHTML=html;
   document.getElementById('reqList2').innerHTML=html;
@@ -302,13 +302,15 @@ function addMember(){
   D.members.push({id:Date.now().toString(36),name,phone,plan,price:+price,expiry});
   save(D); renderOwner();
   document.getElementById('fName').value=''; document.getElementById('fPhone').value=''; document.getElementById('fExpiry').value='';
-  showMsg('aMsg','✅ Member add ho gaya — ab wo apne number se login kar sakta hai.',true);
+  showMsg('aMsg','✅ Member add ho gaya — ab wo apne phone se login kar sakta hai.',true);
 }
 
 function delMember(id){
   if(!confirm('Ye member permanently delete ho jayega. Pakka?')) return;
+  const m=D.members.find(x=>x.id===id);
   D.members=D.members.filter(m=>m.id!==id);
   delete D.checkins[id];
+  if(m) D.requests=D.requests.filter(r=>r.phone!==m.phone);
   save(D); renderOwner();
 }
 
@@ -325,7 +327,9 @@ function changePin(){
 
 // ---------- MEMBER LOGIC ----------
 function renderMember(){
-  const m=curMember= D.members.find(x=>x.phone===curMember.phone)||curMember;
+  const m=D.members.find(x=>x.phone===(curMember&&curMember.phone));
+  if(!m){ logout(); return; }
+  curMember=m;
   const d=daysLeft(m.expiry);
   document.getElementById('mName').textContent=m.name;
   document.getElementById('mPlan').textContent=`${m.plan} · ₹${m.price}`;
@@ -334,8 +338,7 @@ function renderMember(){
   const st=document.getElementById('mStatus');
   st.textContent = d>=0 ? (d<=7?'EXPIRING SOON':'ACTIVE') : 'EXPIRED';
   st.className='badge '+(d>=0?(d<=7?'b-amber':'b-green'):'b-red');
-  const v=(D.checkins[m.id]||[]).length;
-  document.getElementById('mVisits').textContent=v;
+  document.getElementById('mVisits').textContent=(D.checkins[m.id]||[]).length;
 }
 
 function doCheckin(){
@@ -368,5 +371,6 @@ function go(btn,index){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 </script>
+<script src="cloud.js"></script>
 </body>
 </html>
