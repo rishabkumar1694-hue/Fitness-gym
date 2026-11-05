@@ -3,18 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FitZone Gym Retention App — Prototype v3</title>
+<title>FitZone Gym Membership App</title>
 <style>
   :root{
     --bg:#0B0F14; --card:#141B23; --card2:#1B2430; --line:#263243;
     --txt:#F2F6FA; --dim:#9FB0C3; --lime:#C8F542; --amber:#FFC24B;
     --red:#FF5A5F; --green:#3ED598; --blue:#4DA3FF;
-    --radius:16px; font-size:17px;
   }
   *{margin:0;padding:0;box-sizing:border-box}
-  body{background:#05070A;color:var(--txt);font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;padding:14px}
+  body{background:#05070A;color:var(--txt);font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;padding:14px;font-size:17px}
   .wrap{max-width:430px;margin:0 auto}
-  .wide{max-width:900px;margin:0 auto}
   .phone{background:var(--bg);border:1px solid var(--line);border-radius:28px;padding:18px 16px 24px;min-height:640px;box-shadow:0 10px 40px #000a}
   .nav{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0}
   .nav button{padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--dim);font-size:13.5px;cursor:pointer}
@@ -22,420 +20,352 @@
   .screen{display:none}
   .screen.on{display:block}
   h2{font-size:22px;margin-bottom:4px}
-  h3{font-size:18px;margin:14px 0 8px}
+  h3{font-size:17px;margin:14px 0 8px}
   .sub{color:var(--dim);font-size:14px;margin-bottom:12px}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:10px}
-  .row{display:flex;justify-content:space-between;align-items:center;gap:10px}
-  .kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:10px}
+  .row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+  .kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:10px}
   .kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px}
   .kpi b{display:block;font-size:24px;color:var(--lime)}
   .kpi span{font-size:12.5px;color:var(--dim)}
   .badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700}
   .b-green{background:#3ed59822;color:var(--green)} .b-red{background:#ff5a5f22;color:var(--red)}
   .b-amber{background:#ffc24b22;color:var(--amber)} .b-blue{background:#4da3ff22;color:var(--blue)}
-  .b-lime{background:#c8f54222;color:var(--lime)}
   .btn{display:block;width:100%;padding:15px;border:0;border-radius:14px;background:var(--lime);color:#0B0F14;font-size:17px;font-weight:800;margin-top:10px;cursor:pointer}
   .btn.dark{background:var(--card2);color:var(--txt);border:1px solid var(--line)}
   .btn.red{background:var(--red);color:#fff}
-  .btn.sm{width:auto;display:inline-block;padding:8px 14px;font-size:14px;margin-top:0}
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .plan{border:2px solid var(--line);border-radius:var(--radius);padding:14px}
-  .plan.best{border-color:var(--lime)}
-  .plan .strike{color:var(--dim);text-decoration:line-through;font-size:14px}
-  .plan .amt{font-size:26px;font-weight:900;color:var(--lime)}
-  .toggle{display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid var(--line);font-size:16px}
-  .toggle:last-child{border-bottom:0}
-  .tg{width:52px;height:30px;border-radius:999px;background:var(--card2);position:relative;flex:none}
-  .tg::after{content:'';position:absolute;width:24px;height:24px;border-radius:50%;background:var(--dim);top:3px;left:3px}
-  .tg.on{background:var(--lime)} .tg.on::after{left:25px;background:#0B0F14}
+  .btn.sm{width:auto;display:inline-block;padding:8px 14px;font-size:13.5px;margin-top:0}
+  .input{width:100%;padding:13px;border-radius:12px;border:1px solid var(--line);background:var(--card2);color:var(--txt);font-size:16px;margin-bottom:8px}
   .list li{list-style:none;padding:10px 0;border-bottom:1px solid var(--line);font-size:15px}
   .list li:last-child{border-bottom:0}
-  .mono{font-family:monospace;background:var(--card2);border-radius:8px;padding:2px 8px;font-size:14px}
-  .rail{display:flex;gap:6px;flex-wrap:wrap}
-  .rail span{padding:6px 12px;border-radius:999px;background:var(--card2);border:1px solid var(--line);font-size:13px;color:var(--dim)}
-  .rail span.hot{border-color:var(--green);color:var(--green)}
-  .alert{border-left:4px solid var(--amber);padding:10px 12px;background:var(--card);border-radius:10px;margin-bottom:8px;font-size:14.5px}
-  .alert.bad{border-color:var(--red)}
-  table{width:100%;border-collapse:collapse;font-size:13.5px}
-  th,td{padding:9px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
-  th{color:var(--dim);font-size:12px;text-transform:uppercase}
-  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
-  .chips span{background:var(--card2);border:1px solid var(--line);border-radius:999px;padding:5px 12px;font-size:13px;color:var(--blue)}
-  .wa{background:#075E54;border:1px solid #0d9d6d;color:#fff;border-radius:18px 18px 4px 18px;padding:12px 14px;margin:8px 0;max-width:90%;font-size:14.5px;line-height:1.6}
-  .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;text-align:center}
-  .cal div{padding:9px 0;border-radius:8px;background:var(--card2);font-size:13px;color:var(--dim)}
-  .cal .p{background:#3ed59833;color:var(--green);font-weight:700}
-  .cal .r{background:#4da3ff33;color:var(--blue)}
-  .scan{border-radius:14px;padding:14px;margin-bottom:10px;border:1px solid var(--line);background:var(--card)}
-  .scan.ok{border-color:var(--green)} .scan.dup{border-color:var(--amber)}
-  .scan.bad{border-color:var(--red)} .scan.off{border-color:var(--blue)}
-  .input{width:100%;padding:14px;border-radius:12px;border:1px solid var(--line);background:var(--card2);color:var(--txt);font-size:17px;margin-bottom:10px}
-  footer{color:var(--dim);font-size:12.5px;text-align:center;margin:20px 0}
+  .msg{padding:10px 12px;border-radius:10px;font-size:14px;margin-bottom:8px}
+  .msg.err{background:#ff5a5f22;color:var(--red)}
+  .msg.ok{background:#3ed59822;color:var(--green)}
+  select.input{appearance:none}
+  footer{color:var(--dim);font-size:12px;text-align:center;margin:20px 0}
 </style>
 </head>
 <body>
 
-<!-- ============ LOGIN GATE (default screen) ============ -->
+<!-- ================= LOGIN GATE ================= -->
 <div class="wrap" id="loginGate">
   <div class="phone">
     <h2>FitZone Fitness 🔥</h2>
-    <p class="sub">Nagpur · Dharampeth — Apna role select karke login karo.</p>
+    <p class="sub">Gym membership app — apna role select karke login karo.</p>
 
     <div class="card">
       <b>💪 Member Login</b>
-      <div class="sub" style="margin:4px 0 8px">Mobile number + OTP se aapki membership khud mil jayegi.</div>
-      <input class="input" value="+91 98765 43210" inputmode="numeric">
-      <button class="btn" onclick="login('member')">OTP verify → Member App</button>
-      <div id="otpDone" class="sub" style="display:none;margin-top:8px">✅ OTP verified — Welcome, <b>Aman Sharma</b>!</div>
+      <div class="sub" style="margin:4px 0 8px">Apna registered mobile number daalo. (Gym se register karwane ke baad hi entry milegi.)</div>
+      <input class="input" id="mPhone" placeholder="10-digit mobile number" inputmode="numeric" maxlength="10">
+      <button class="btn" onclick="memberLogin()">Login → Member App</button>
+      <div id="mMsg" class="msg err" style="display:none"></div>
     </div>
 
     <div class="card">
-      <b>📋 Owner / Staff Login</b>
-      <div class="sub" style="margin:4px 0 8px">Sirf owner aur front-desk staff ke liye. 4-digit PIN daalo.</div>
-      <input class="input" type="password" placeholder="Staff PIN" maxlength="4" id="pinInput">
-      <button class="btn" onclick="login('owner')">PIN verify → Dashboard</button>
-      <div id="pinError" style="display:none;color:var(--red);font-size:14px;margin-top:6px">❌ Galat PIN — dobara try karo</div>
+      <b>📋 Owner Login</b>
+      <div id="ownerSetPin" style="display:none">
+        <div class="sub" style="margin:4px 0 8px">Pehli baar? Apna 4-digit PIN set karo — yahi PIN aage se owner login ke liye lagega.</div>
+        <input class="input" id="newPin1" type="password" placeholder="Naya PIN (4 digit)" maxlength="4" inputmode="numeric">
+        <input class="input" id="newPin2" type="password" placeholder="PIN dobara confirm karo" maxlength="4" inputmode="numeric">
+        <button class="btn" onclick="ownerSetup()">PIN set karke Login →</button>
+      </div>
+      <div id="ownerEnterPin" style="display:none">
+        <div class="sub" style="margin:4px 0 8px">Apna PIN daalo.</div>
+        <input class="input" id="pinInput" type="password" placeholder="Owner PIN" maxlength="4" inputmode="numeric">
+        <button class="btn" onclick="ownerLogin()">Login → Dashboard</button>
+      </div>
+      <div id="oMsg" class="msg err" style="display:none"></div>
     </div>
-
-    <p class="sub" style="margin-top:16px">🔒 Prototype demo: Owner PIN <b>4321</b> · Payments simulated — real provider connect hone tak.</p>
   </div>
 </div>
 
-<!-- ============ MEMBER VIEW (hidden till member login) ============ -->
+<!-- ================= OWNER VIEW ================= -->
+<div class="wrap" id="ownerView" style="display:none">
+  <div class="phone">
+    <div class="row" style="margin-bottom:6px"><h2>Owner Dashboard</h2><button class="btn sm dark" onclick="logout()">Logout</button></div>
+    <div class="nav">
+      <button class="on" onclick="go(this,1)">Dashboard</button>
+      <button onclick="go(this,2)">Members</button>
+      <button onclick="go(this,3)">Add Member</button>
+      <button onclick="go(this,4)">Renewals</button>
+      <button onclick="go(this,5)">Settings</button>
+    </div>
+
+    <!-- 1: DASHBOARD -->
+    <section class="screen on" id="os1">
+      <div class="kpis" id="kpiBox"></div>
+      <div class="card"><b>Expiring soon (7 din)</b><ul class="list" id="expList"></ul></div>
+      <div class="card"><b>Recent renewal requests</b><ul class="list" id="reqList"></ul></div>
+    </section>
+
+    <!-- 2: MEMBERS LIST -->
+    <section class="screen" id="os2">
+      <h3>Members</h3>
+      <p class="sub">List me jo bhi hai wahi real members hain — delete karne ke liye ❌ dabao.</p>
+      <div class="card"><ul class="list" id="memberList"></ul></div>
+    </section>
+
+    <!-- 3: ADD MEMBER -->
+    <section class="screen" id="os3">
+      <h3>Naya Member Add Karo</h3>
+      <p class="sub">Member ka data bharo — wo turant member login se apna account dekh payega.</p>
+      <div class="card">
+        <input class="input" id="fName" placeholder="Pura naam (e.g. Aman Sharma)">
+        <input class="input" id="fPhone" placeholder="Mobile number (10 digit)" inputmode="numeric" maxlength="10">
+        <select class="input" id="fPlan">
+          <option value="Monthly|999">Monthly — ₹999</option>
+          <option value="Quarterly|2499">Quarterly — ₹2,499</option>
+          <option value="Half-yearly|4499">Half-yearly — ₹4,499</option>
+          <option value="Yearly|7999">Yearly — ₹7,999</option>
+        </select>
+        <label class="sub">Expiry date</label>
+        <input class="input" id="fExpiry" type="date">
+        <button class="btn" onclick="addMember()">Member Add Karo</button>
+        <div id="aMsg" class="msg" style="display:none"></div>
+      </div>
+    </section>
+
+    <!-- 4: RENEWALS -->
+    <section class="screen" id="os4">
+      <h3>Renewal Requests</h3>
+      <p class="sub">Members jo renew chahte hain — plan dekh ke gym me payment lo aur expiry update karo.</p>
+      <div class="card"><ul class="list" id="reqList2"></ul></div>
+    </section>
+
+    <!-- 5: SETTINGS -->
+    <section class="screen" id="os5">
+      <h3>Owner PIN Change</h3>
+      <div class="card">
+        <input class="input" id="oldPin" type="password" placeholder="Purana PIN" maxlength="4" inputmode="numeric">
+        <input class="input" id="chgPin1" type="password" placeholder="Naya PIN (4 digit)" maxlength="4" inputmode="numeric">
+        <input class="input" id="chgPin2" type="password" placeholder="Naya PIN confirm" maxlength="4" inputmode="numeric">
+        <button class="btn" onclick="changePin()">PIN Change Karo</button>
+        <div id="sMsg" class="msg" style="display:none"></div>
+      </div>
+      <h3>⚠️ Data Note</h3>
+      <p class="sub">Data isi browser/device me save hota hai (localStorage). Naya phone ya browser use karne se pehle PIN note kar lena — naye device me list khaali milegi aur PIN dobara set karna padega.</p>
+    </section>
+  </div>
+</div>
+
+<!-- ================= MEMBER VIEW ================= -->
 <div class="wrap" id="memberView" style="display:none">
   <div class="phone">
     <div class="row" style="margin-bottom:6px"><h2>FitZone Fitness 🔥</h2><button class="btn sm dark" onclick="logout()">Logout</button></div>
     <div class="nav">
       <button class="on" onclick="go(this,1)">Home</button>
-      <button onclick="go(this,2)">QR Check-in</button><button onclick="go(this,3)">Attendance</button>
-      <button onclick="go(this,4)">Streak</button><button onclick="go(this,5)">Renew</button>
-      <button onclick="go(this,6)">Add-ons</button><button onclick="go(this,7)">Settings</button>
+      <button onclick="go(this,2)">Check-in</button>
+      <button onclick="go(this,3)">Renew</button>
     </div>
 
-    <!-- M1: HOME -->
-    <section class="screen on">
+    <!-- 1: HOME -->
+    <section class="screen on" id="ms1">
       <div class="card">
-        <div class="row"><div><b>Aman Sharma</b><div class="sub" style="margin:0">Quarterly Plan · ₹2,499 paid</div></div><span class="badge b-green">ACTIVE</span></div>
-        <div class="row" style="margin-top:10px"><div><b style="font-size:15px">Expiry: 09 Nov 2026</b><div class="sub" style="margin:0">4 din baaki</div></div><button class="btn sm" onclick="go(this,5)">Renew now</button></div>
+        <div class="row"><div><b id="mName">—</b><div class="sub" style="margin:0" id="mPlan">—</div></div><span class="badge b-green" id="mStatus">ACTIVE</span></div>
+        <div class="row" style="margin-top:10px"><div><b style="font-size:15px" id="mExpiry">—</b><div class="sub" style="margin:0" id="mLeft">—</div></div></div>
       </div>
-      <div class="card" style="border-color:var(--amber)">
-        <b style="color:var(--amber)">⏰ Renewal reminder</b>
-        <div class="sub" style="margin:4px 0 0">Expiry 7 din pehle reminder auto-chala. Aaj Day-4 hai — renew karke streak aur benefits bachao!</div>
-      </div>
+      <div class="card"><div class="row"><span>🔥 Total visits</span><b id="mVisits" style="color:var(--lime)">0</b></div></div>
+    </section>
+
+    <!-- 2: CHECK-IN -->
+    <section class="screen" id="ms2">
+      <h3>Check-in</h3>
+      <p class="sub">Gym pahunch ke button dabao — aaj ka visit count ho jayega. Din me ek hi check-in count hota hai.</p>
       <div class="card">
-        <div class="row"><div><b>🔥 21-din streak</b><div class="sub" style="margin:0">Planned-visit streak · Mon/Wed/Fri/Sat</div></div><div style="text-align:center"><b style="font-size:24px;color:var(--lime)">4/5</b><div class="sub" style="margin:0">is week</div></div></div>
-      </div>
-      <div class="grid2">
-        <button class="btn dark" onclick="go(this,2)">📷 QR Check-in</button>
-        <button class="btn dark" onclick="go(this,6)">🛒 Add-ons</button>
-        <button class="btn dark" onclick="go(this,3)">📅 Attendance</button>
-        <button class="btn dark" onclick="go(this,5)">💳 Renew</button>
+        <button class="btn" onclick="doCheckin()">✅ Aaj ka Check-in</button>
+        <div id="cMsg" class="msg" style="display:none"></div>
       </div>
     </section>
 
-    <!-- M2: QR CHECK-IN -->
-    <section class="screen">
-      <h2>QR Check-in</h2>
-      <p class="sub">Gym ka QR har session ke liye naya hota hai (60 sec rotating). Aaj ka scan result:</p>
-      <div class="scan ok"><b>✅ Success</b> — 08:42 AM check-in ho gaya! Streak +1. Shabaash Aman!</div>
-      <div class="scan dup"><b>⚠️ Duplicate blocked</b> — Aaj 08:42 pe already checked in. Double scan allowed nahi.</div>
-      <div class="scan bad"><b>❌ Invalid QR</b> — Purana/session-expired QR. Front desk se fresh code mangwa lo.</div>
-      <div class="scan bad"><b>⏸️ Membership expired</b> — 09 Nov 2026 ko khatam. Plan khatam — renew karo, phir check-in.</div>
-      <div class="scan off"><b>📶 Offline mode</b> — Check-in saved offline ✅. Internet aane pe auto-sync <span class="badge b-green">SYNCED</span></div>
-    </section>
-
-    <!-- M3: ATTENDANCE -->
-    <section class="screen">
-      <h2>Attendance History</h2>
-      <p class="sub">November 2026 · 18 visits this month</p>
-      <div class="cal card">
-        <div class="p">1</div><div class="p">2</div><div class="p">4</div><div class="p">6</div><div class="p">7</div><div class="p">8</div><div class="p">9</div>
-        <div class="r">10</div><div class="p">11</div><div class="p">13</div><div>14</div><div class="p">15</div><div>16</div><div class="p">18</div>
-        <div>19</div><div class="p">20</div><div class="p">22</div><div class="p">23</div><div class="p">25</div><div class="p">27</div><div class="p">28</div>
-      </div>
+    <!-- 3: RENEW -->
+    <section class="screen" id="ms3">
+      <h3>Membership Renew</h3>
+      <p class="sub">Plan choose karke request bhejo — owner ko gym me payment karne pe expiry update ho jayegi.</p>
       <div class="card">
-        <ul class="list">
-          <li class="row"><span>05 Nov 2026 · 08:42 AM</span><span class="badge b-green">PRESENT</span></li>
-          <li class="row"><span>04 Nov 2026 · 07:15 PM</span><span class="badge b-green">PRESENT</span></li>
-          <li class="row"><span>03 Nov 2026</span><span class="badge b-blue">REST DAY</span></li>
-          <li class="row"><span>02 Nov 2026 · 06:30 PM</span><span class="badge b-green">PRESENT</span></li>
-          <li class="row"><span>01 Nov 2026 · 08:10 AM</span><span class="badge b-green">PRESENT</span></li>
-        </ul>
-      </div>
-    </section>
-
-    <!-- M4: STREAK -->
-    <section class="screen">
-      <h2>Streak Settings</h2>
-      <p class="sub">Fair rules — rest days aur approved pause se streak nahi tootega.</p>
-      <div class="card"><b>Option A: Planned-Visit Streak</b><div class="sub" style="margin:4px 0 8px">Aapke chune hue din: Mon · Wed · Fri · Sat. In dinon me aana = streak zinda. Baaki din rest.</div><span class="badge b-lime">SELECTED</span></div>
-      <div class="card"><b>Option B: Weekly Goal Streak</b><div class="sub" style="margin:4px 0 8px">Hafte me 4 visits ka target pura karo — kab bhi aao. Goal hit = streak safe.</div></div>
-      <div class="card"><b>Pause / Freeze</b><div class="sub" style="margin:4px 0 0">Approved pause (max 15 din/quarter) ke dauran streak freeze rahega — tootega nahi. 🧊</div></div>
-    </section>
-
-    <!-- M5: RENEWAL -->
-    <section class="screen">
-      <h2>Renew Membership</h2>
-      <p class="sub">Expiry: 09 Nov 2026 · Reminder Day-4 chal raha hai</p>
-      <div class="plan card"><div class="row"><b>3 Months (Quarterly)</b><span class="strike">₹2,999</span></div><div class="amt">₹2,499</div><div class="sub">Save ₹500 · Freeze 7 din · Diet guide free</div></div>
-      <div class="plan card best"><div class="row"><b>6 Months (Half-yearly) ⭐ BEST</b><span class="strike">₹5,999</span></div><div class="amt">₹4,499</div><div class="sub">Save ₹1,500 · Freeze 15 din · 1 free PT session · InBody test</div></div>
-      <div class="plan card"><div class="row"><b>12 Months (Yearly)</b><span class="strike">₹11,988</span></div><div class="amt">₹7,999</div><div class="sub">Save ₹3,989 · Freeze 30 din · 2 PT sessions · Guest pass ×4</div></div>
-      <button class="btn">🔒 Secure Payment — ₹4,499</button>
-      <p class="sub" style="margin-top:8px">Terms: non-refundable after 7 days; freeze on request min 24h pehle; transfer nahi.</p>
-      <h3>Payment status (simulated)</h3>
-      <div class="rail"><span>created</span><span>pending</span><span class="hot">PAID ✓ verified</span><span>failed</span><span>refunded</span><span>reversed</span></div>
-      <p class="sub" style="margin-top:8px">⚠️ Membership extend tabhi hogi jab provider payment <b>verified</b> ho — exactly once. Receipt auto-issue hoga.</p>
-    </section>
-
-    <!-- M6: ADD-ONS -->
-    <section class="screen">
-      <h2>Add-on Marketplace</h2>
-      <p class="sub">Koi add-on auto-select nahi hota — aap khud choose karo.</p>
-      <div class="card"><div class="row"><b>🏋️ Personal Training — 10 sessions</b><b style="color:var(--lime)">₹3,500</b></div><div class="sub" style="margin:4px 0 8px">Trainer: <b>Arjun Kapse</b> · ACE Certified · Validity 45 days · Missed session 12h notice needed · Cancel: 48h pehle full refund</div><button class="btn dark">Add karo</button></div>
-      <div class="card"><div class="row"><b>🥗 Diet Plan — Monthly</b><b style="color:var(--lime)">₹999</b></div><div class="sub" style="margin:4px 0 8px">Nutritionist: <b>Priya Joshi</b> (PGD Clinical Nutrition) · Veg/non-veg both · Cancel anytime before renewal</div><button class="btn dark">Add karo</button></div>
-      <div class="card"><div class="row"><b>🥛 Whey Protein 1kg (Chocolate)</b><b style="color:var(--lime)">₹2,499</b></div><div class="sub" style="margin:4px 0 8px">Stock: <b style="color:var(--amber)">8 left</b> · MRP ₹3,200 · Sealed pack only return · Cancel before dispatch free</div><button class="btn dark">Add karo</button></div>
-    </section>
-
-    <!-- M7: COMM PREFS -->
-    <section class="screen">
-      <h2>Communication Settings</h2>
-      <p class="sub">Aapke rules, aapki marzi.</p>
-      <div class="card">
-        <div class="toggle"><span>WhatsApp reminders</span><div class="tg on"></div></div>
-        <div class="toggle"><span>SMS</span><div class="tg on"></div></div>
-        <div class="toggle"><span>Email</span><div class="tg"></div></div>
-        <div class="toggle"><span>Renewal reminders (14/7/3/0 din pehle)</span><div class="tg on"></div></div>
-        <div class="toggle"><span>Add-on offers</span><div class="tg"></div></div>
-      </div>
-      <button class="btn red">Sab notifications band karo (Opt-out)</button>
-      <p class="sub" style="margin-top:8px">Opt-out ke baad renewal reminders band — payment/cancellation pe reminders khud ruk jaate hain.</p>
-    </section>
-  </div>
-</div>
-
-<!-- ============ OWNER VIEW (hidden till PIN login) ============ -->
-<div class="wrap wide" id="ownerView" style="display:none">
-  <div class="phone" style="min-height:auto">
-    <div class="row" style="margin-bottom:6px"><h2>Owner Dashboard</h2><button class="btn sm dark" onclick="logout()">Logout</button></div>
-    <div class="nav">
-      <button class="on" onclick="go(this,1)">Dashboard</button><button onclick="go(this,2)">Red-list</button>
-      <button onclick="go(this,3)">Plans &amp; Staff</button><button onclick="go(this,4)">Assisted Check-in</button>
-      <button onclick="go(this,5)">Renewal Pipeline</button><button onclick="go(this,6)">Add-on Ops</button>
-      <button onclick="go(this,7)">Summary &amp; Alerts</button>
-    </div>
-
-    <!-- O1: DASHBOARD -->
-    <section class="screen on">
-      <div class="row" style="margin-bottom:10px"><span class="badge b-blue">FitZone · 05 Nov 2026</span><span class="sub" style="margin:0">Staff: Kavita Sharma</span></div>
-      <div class="kpis">
-        <div class="kpi"><b>24</b><span>Active members</span></div>
-        <div class="kpi"><b>11</b><span>Aaj ke check-ins</span></div>
-        <div class="kpi"><b>18</b><span>7-din active members</span></div>
-        <div class="kpi"><b style="color:var(--red)">6</b><span>Open no-show cases</span></div>
-        <div class="kpi"><b style="color:var(--green)">2</b><span>Returned members</span></div>
-        <div class="kpi"><b style="color:var(--amber)">5</b><span>Renewals due (7 din)</span></div>
-        <div class="kpi"><b>₹18,499</b><span>Renewal collection (month)</span></div>
-        <div class="kpi"><b>₹12,499</b><span>Add-on revenue</span></div>
-      </div>
-      <h3>🚨 Red-list — in 6 members ko call karo</h3>
-      <div class="card"><ul class="list">
-        <li class="row"><span><b>Farhan Khan</b> · 98220 4521<br><span class="sub" style="margin:0">Quarterly · exp 28 Feb 2027 · absent <b style="color:var(--red)">17 din</b> · trainer: Arjun</span></span><button class="btn sm">📞 Call</button></li>
-        <li class="row"><span><b>Deepak Joshi</b> · 98220 7789<br><span class="sub" style="margin:0">Monthly · exp 12 Nov 2026 · absent <b style="color:var(--red)">19 din</b> · trainer: Sneha</span></span><button class="btn sm">💬 WhatsApp</button></li>
-      </ul><button class="btn dark" onclick="go(this,2)">Puri red-list dekho →</button></div>
-      <h3>💰 Renewals due — 7 din me</h3>
-      <div class="card"><ul class="list">
-        <li class="row"><span><b>Aman Sharma</b> · Quarterly</span><span class="badge b-amber">09 Nov · ₹2,499</span></li>
-        <li class="row"><span><b>Priya Verma</b> · Monthly</span><span class="badge b-amber">07 Nov · ₹999</span></li>
-        <li class="row"><span><b>Meera Iyer</b> · Monthly</span><span class="badge b-amber">08 Nov · ₹999</span></li>
-        <li class="row"><span><b>Rohit Patil</b> · Half-yearly</span><span class="badge b-amber">11 Nov · ₹4,499</span></li>
-        <li class="row"><span><b>Suresh Yadav</b> · Quarterly</span><span class="badge b-amber">11 Nov · ₹2,499</span></li>
-      </ul></div>
-    </section>
-
-    <!-- O2: RED LIST -->
-    <section class="screen">
-      <h2>No-Show Red-list</h2>
-      <p class="sub">Threshold: <b class="mono">10 din</b> (Settings me configurable) · Paused/Frozen/Expired/Cancelled members excluded ✓</p>
-      <table>
-        <tr><th>Member</th><th>Plan / Expiry</th><th>Last in</th><th>Absent</th><th>Trainer</th><th>Last FU</th><th>Action</th></tr>
-        <tr><td><b>Farhan Khan</b><br><span class="sub" style="margin:0">98220 4521</span></td><td>Quarterly<br>28 Feb 27</td><td>19 Oct</td><td style="color:var(--red)"><b>17</b></td><td>Arjun</td><td>03 Nov</td><td><button class="btn sm">📞</button> <button class="btn sm">💬</button></td></tr>
-        <tr><td><b>Deepak Joshi</b><br><span class="sub" style="margin:0">98220 7789</span></td><td>Monthly<br>12 Nov 26</td><td>17 Oct</td><td style="color:var(--red)"><b>19</b></td><td>Sneha</td><td>02 Nov</td><td><button class="btn sm">📞</button> <button class="btn sm">💬</button></td></tr>
-        <tr><td><b>Rajesh Kumar</b><br><span class="sub" style="margin:0">98220 3310</span></td><td>Yearly<br>14 Mar 27</td><td>22 Oct</td><td style="color:var(--red)"><b>14</b></td><td>Rohit</td><td>—</td><td><button class="btn sm">📞</button> <button class="btn sm">💬</button></td></tr>
-        <tr><td><b>Vikram Singh</b><br><span class="sub" style="margin:0">98220 9902</span></td><td>Quarterly<br>05 Jan 27</td><td>24 Oct</td><td style="color:var(--red)"><b>12</b></td><td>Arjun</td><td>01 Nov</td><td><button class="btn sm">📞</button> <button class="btn sm">💬</button></td></tr>
-        <tr><td><b>Neha Agarwal</b><br><span class="sub" style="margin:0">98220 6617</span></td><td>Monthly<br>20 Nov 26</td><td>25 Oct</td><td style="color:var(--red)"><b>11</b></td><td>Sneha</td><td>—</td><td><button class="btn sm">📞</button> <button class="btn sm">💬</button></td></tr>
-        <tr><td><b>Pooja Nair</b><br><span class="sub" style="margin:0">98220 1144</span></td><td>Half-yearly<br>02 Feb 27</td><td>26 Oct</td><td style="color:var(--red)"><b>10</b></td><td>Rohit</td><td>04 Nov</td><td><button class="btn sm">📞</button> <button class="btn sm">💬</button></td></tr>
-      </table>
-      <h3>Mark Outcome — Farhan Khan</h3>
-      <div class="card">
-        <div class="chips" style="gap:8px">
-          <span class="badge b-lime">Will return</span><span class="badge b-amber">Injured</span><span class="badge b-blue">Travelling</span>
-          <span class="badge b-amber">Timing issue</span><span class="badge b-red">Unhappy</span><span class="badge b-blue">No response</span><span class="badge b-red">Cancelled</span>
-        </div>
-        <p class="sub" style="margin-top:10px">Selected: <b>Injured</b> → next action date <b>mandatory</b>: <span class="mono">25 Nov 2026</span>. Case open rahega.</p>
-      </div>
-    </section>
-
-    <!-- O3: PLANS & STAFF -->
-    <section class="screen">
-      <h2>Plans, Prices &amp; Staff</h2>
-      <div class="card"><ul class="list">
-        <li class="row"><span><b>Monthly</b> · base ₹999</span><span class="badge b-lime">LIVE</span></li>
-        <li class="row"><span><b>Quarterly</b> · base ₹2,999 → ₹2,499</span><span class="badge b-lime">LIVE</span></li>
-        <li class="row"><span><b>Half-yearly</b> · base ₹5,999 → ₹4,499</span><span class="badge b-lime">LIVE</span></li>
-        <li class="row"><span><b>Yearly</b> · base ₹11,988 → ₹7,999</span><span class="badge b-lime">LIVE</span></li>
-      </ul></div>
-      <h3>Staff</h3>
-      <div class="card"><ul class="list">
-        <li class="row"><span>🏋️ <b>Arjun Kapse</b> · PT (ACE) · 12 PT slots</span><span class="badge b-amber">DOUBLE-BOOKED ⚠️</span></li>
-        <li class="row"><span>🏋️ <b>Rohit Deshmukh</b> · PT (K11) · 8 PT slots</span><span class="badge b-green">OK</span></li>
-        <li class="row"><span>🏋️ <b>Sneha Kulkarni</b> · PT (ACSM) · 10 PT slots</span><span class="badge b-green">OK</span></li>
-        <li class="row"><span>🖥️ <b>Kavita Sharma</b> · Front-desk · assisted check-in rights</span><span class="badge b-blue">STAFF</span></li>
-      </ul></div>
-      <h3>Add-on stock / capacity</h3>
-      <div class="card"><ul class="list">
-        <li class="row"><span>Whey Protein 1kg</span><b style="color:var(--amber)">8 left</b></li>
-        <li class="row"><span>Creatine 500g</span><b style="color:var(--red)">2 left</b></li>
-        <li class="row"><span>PT slots (this week)</span><b>14/30 used</b></li>
-      </ul></div>
-    </section>
-
-    <!-- O4: ASSISTED CHECK-IN -->
-    <section class="screen">
-      <h2>Assisted Check-in</h2>
-      <p class="sub">Staff: <b>Kavita Sharma</b> · mandatory reason + immutable audit log</p>
-      <div class="card">
-        <b>Member:</b> <span class="mono">Rajesh Kumar · 98220 3310</span>
-        <div class="sub" style="margin:6px 0 10px">QR fail tha, phone-dead condition — front desk ne manual check-in kiya.</div>
-        <div class="chips" style="gap:8px">
-          <span class="badge b-lime">QR failed</span><span class="badge b-amber">Phone dead</span>
-          <span class="badge b-blue">Gate congestion</span><span class="badge b-amber">Correction</span>
-        </div>
-      </div>
-      <button class="btn">Mark Check-in (reason: QR failed)</button>
-      <h3>Audit log (immutable)</h3>
-      <div class="card" style="font-size:14px">
-        <ul class="list">
-          <li><span class="mono">05 Nov 08:46</span> · Kavita S. · QR failed · device DESK-02 · <span class="badge b-green">VALID</span></li>
-          <li><span class="mono">04 Nov 19:20</span> · Kavita S. · Phone dead · device DESK-02 · <span class="badge b-green">VALID</span></li>
-          <li><span class="mono">03 Nov 09:02</span> · Kavita S. · Correction (11:00 → 09:02) · <span class="badge b-red">NO REASON ⚠️</span></li>
-        </ul>
-      </div>
-    </section>
-
-    <!-- O5: RENEWAL PIPELINE -->
-    <section class="screen">
-      <h2>Renewal Pipeline</h2>
-      <div class="grid2">
-        <div class="card"><b style="color:var(--amber)">Reminded · 5</b><div class="sub" style="margin:4px 0 0">Aman, Priya, Rohit, Meera, Suresh — Day-4/7 reminder sent</div></div>
-        <div class="card"><b style="color:var(--blue)">Payment pending · 2</b><div class="sub" style="margin:4px 0 0">Priya ₹999 · Meera ₹999</div></div>
-        <div class="card" style="border-color:var(--green)"><b style="color:var(--green)">Paid — verify · 2</b><div class="sub" style="margin:4px 0 0">Aman ₹4,499 · Rohit ₹4,499 → verify, phir extend + receipt</div></div>
-        <div class="card"><b style="color:var(--red)">Failed · 1</b><div class="sub" style="margin:4px 0 0">Suresh Yadav — UPI declined · retry bhejo</div></div>
-        <div class="card"><b style="color:var(--dim)">Refunded · 1</b><div class="sub" style="margin:4px 0 0">Order #1019 · refund processed</div></div>
-        <div class="card"><b style="color:var(--dim)">Reversed · 0</b><div class="sub" style="margin:4px 0 0">Chargeback cases — none</div></div>
-      </div>
-      <div class="alert bad">⛔ <b>Block:</b> Payment "paid" but <b>NOT verified</b> (order #1022) — membership extension locked until provider confirmation.</div>
-      <div class="alert">✔ Verified payment → membership extends <b>exactly once</b> → receipt auto-issue. Duplicate extension impossible.</div>
-    </section>
-
-    <!-- O6: ADD-ON OPS -->
-    <section class="screen">
-      <h2>Add-on Operations</h2>
-      <h3>PT package session usage</h3>
-      <div class="card"><ul class="list">
-        <li class="row"><span><b>Aman Sharma</b> · 10-session pack<br><span class="sub" style="margin:0">Trainer Arjun · next: 07 Nov 07:00 AM</span></span><b style="color:var(--lime)">6/10 used</b></li>
-        <li class="row"><span><b>Anjali Deshmukh</b> · 20-session pack<br><span class="sub" style="margin:0">Trainer Sneha · next: 06 Nov 06:00 PM</span></span><b style="color:var(--lime)">13/20 used</b></li>
-      </ul>
-      <div class="alert bad">⚠️ Trainer double-booking: <b>Arjun</b> — 07 Nov 07:00 AM (Aman + Vikram same slot). Reschedule one.</div></div>
-      <h3>Product order fulfilment</h3>
-      <div class="card"><ul class="list">
-        <li class="row"><span><b>#1023</b> · Whey 1kg · Aman Sharma · ₹2,499</span><button class="btn sm">Fulfil → stock 8→7</button></li>
-        <li class="row"><span><b>#1024</b> · Creatine 500g · Meera Iyer · ₹899</span><span class="badge b-red">STOCK LOW (2)</span></li>
-        <li class="row"><span><b>#1021</b> · Shaker · Deepak Joshi · ₹299</span><span class="badge b-green">FULFILLED</span></li>
-      </ul></div>
-    </section>
-
-    <!-- O7: SUMMARY & ALERTS -->
-    <section class="screen">
-      <h2>Daily Owner Summary</h2>
-      <div class="wa">
-        <b>FitZone — 05 Nov 2026, 9:00 PM</b><br><br>
-        ✅ Check-ins: <b>11</b><br>
-        🚨 New no-show cases: <b>2</b> (Neha Agarwal, Pooja Nair)<br>
-        📞 Follow-ups done: <b>4</b> (1 will return, 1 injured, 1 no response, 1 unhappy)<br>
-        💳 Renewals: <b>5 due</b> · 1 paid (verifying) · collection ₹18,499<br>
-        🛒 Add-ons: 1 PT pack sold (₹3,500) · 2 supplement orders
-      </div>
-      <h3>⚡ Data-quality alerts</h3>
-      <div class="alert bad">Missing expiry date: <b>1 member</b> (Meera Iyer — membership row incomplete)</div>
-      <div class="alert bad">Paid but unverified: <b>1 payment</b> (order #1022) — extension blocked</div>
-      <div class="alert bad">Attendance correction without reason: <b>1</b> (03 Nov, DESK-02)</div>
-      <div class="alert bad">Trainer double booking: <b>1</b> (Arjun, 07 Nov 07:00 AM)</div>
-      <div class="alert">Negative stock: <b>0 ✓</b></div>
-      <h3>⚙️ Settings</h3>
-      <div class="card">
-        <div class="toggle"><span>No-show threshold — 10 din</span><span class="mono">10</span></div>
-        <div class="toggle"><span>Renewal reminder windows — 14 / 7 / 3 / 0 din</span><div class="tg on"></div></div>
-        <div class="toggle"><span>Pause allowed — max 15 din/quarter</span><div class="tg on"></div></div>
-        <div class="toggle"><span>Simulated payments (provider not connected)</span><span class="badge b-amber">SIM ONLY</span></div>
+        <select class="input" id="rPlan">
+          <option value="Monthly|999">Monthly — ₹999</option>
+          <option value="Quarterly|2499">Quarterly — ₹2,499</option>
+          <option value="Half-yearly|4499">Half-yearly — ₹4,499</option>
+          <option value="Yearly|7999">Yearly — ₹7,999</option>
+        </select>
+        <button class="btn" onclick="sendRenew()">Renewal Request Bhejo</button>
+        <div id="rMsg" class="msg" style="display:none"></div>
       </div>
     </section>
   </div>
 </div>
 
-<footer>
-  <b>Data tables:</b><br>
-  <div class="chips" style="justify-content:center">
-    <span>Members</span><span>Plans</span><span>Memberships</span><span>Attendance</span><span>Streaks</span>
-    <span>NoShowCases</span><span>FollowUps</span><span>Payments</span><span>RenewalOrders</span><span>AddOns</span>
-    <span>AddOnOrders</span><span>Notifications</span><span>Settings</span><span>AuditLogs</span>
-  </div>
-  <p style="margin-top:14px"><b>Automations:</b> daily no-show scan (1 case/member at threshold) · valid QR check-in → attendance + streak + case resolve · reminders 14/7/3/0-day windows (stop on payment/cancel/opt-out) · verified payment → extend once + receipt · daily owner summary · data-quality alerts</p>
-  <p>🔒 Payments simulated until a real provider is connected. Prototype — sample data only.</p>
-</footer>
+<footer>FitZone Fitness — Data isi device me save hota hai · Payment gateway baad me judega</footer>
 
 <script>
-// ---- LOGIN GATE ----
-function login(role){
-  if (role === 'owner'){
-    const pin = document.getElementById('pinInput').value;
-    if (pin !== '4321'){   // demo PIN — real app me server-side check hoga
-      document.getElementById('pinError').style.display = 'block';
-      return;
-    }
-  } else {
-    document.getElementById('otpDone').style.display = 'block';
-  }
-  document.getElementById('loginGate').style.display = 'none';
-  document.getElementById('memberView').style.display = (role === 'member') ? '' : 'none';
-  document.getElementById('ownerView').style.display  = (role === 'owner')  ? '' : 'none';
-  window.scrollTo({ top: 0 });
+// ---------- DATA (localStorage) ----------
+const KEY='fitzoneData';
+function load(){ try{return JSON.parse(localStorage.getItem(KEY))||{pin:null,members:[],checkins:{},requests:[]}}catch(e){return {pin:null,members:[],checkins:{},requests:[]}} }
+function save(d){ localStorage.setItem(KEY,JSON.stringify(d)) }
+let D=load(), curMember=null;
+
+const PLANS={Monthly:{days:30,price:999},Quarterly:{days:90,price:2499},'Half-yearly':{days:180,price:4499},Yearly:{days:365,price:7999}};
+
+// ---------- LOGIN GATE ----------
+(function initGate(){
+  if(D.pin){ document.getElementById('ownerEnterPin').style.display='block'; }
+  else { document.getElementById('ownerSetPin').style.display='block'; }
+})();
+
+function showMsg(id,txt,ok){
+  const el=document.getElementById(id);
+  el.textContent=txt; el.className='msg '+(ok?'ok':'err'); el.style.display='block';
+}
+
+function ownerSetup(){
+  const p1=document.getElementById('newPin1').value, p2=document.getElementById('newPin2').value;
+  if(!/^\d{4}$/.test(p1)){ showMsg('oMsg','PIN 4 digit ka hona chahiye.'); return; }
+  if(p1!==p2){ showMsg('oMsg','Dono PIN match nahi kar rahe.'); return; }
+  D.pin=p1; save(D);
+  enterOwner();
+}
+
+function ownerLogin(){
+  const p=document.getElementById('pinInput').value;
+  if(p===D.pin){ enterOwner(); }
+  else { showMsg('oMsg','❌ Galat PIN — dobara try karo.'); }
+}
+
+function enterOwner(){
+  document.getElementById('loginGate').style.display='none';
+  document.getElementById('ownerView').style.display='';
+  renderOwner();
+  window.scrollTo({top:0});
+}
+
+function memberLogin(){
+  const ph=document.getElementById('mPhone').value.trim();
+  if(!/^\d{10}$/.test(ph)){ showMsg('mMsg','10-digit valid mobile number daalo.'); return; }
+  const m=D.members.find(x=>x.phone===ph);
+  if(!m){ showMsg('mMsg','Ye number register nahi hai — gym front desk se registration karwao.'); return; }
+  curMember=m;
+  document.getElementById('loginGate').style.display='none';
+  document.getElementById('memberView').style.display='';
+  renderMember();
+  window.scrollTo({top:0});
 }
 
 function logout(){
-  document.getElementById('memberView').style.display = 'none';
-  document.getElementById('ownerView').style.display  = 'none';
-  document.getElementById('loginGate').style.display  = '';
-  document.getElementById('pinError').style.display   = 'none';
-  document.getElementById('otpDone').style.display     = 'none';
-  if (document.getElementById('pinInput')) document.getElementById('pinInput').value = '';
-  window.scrollTo({ top: 0 });
+  curMember=null;
+  document.getElementById('memberView').style.display='none';
+  document.getElementById('ownerView').style.display='none';
+  document.getElementById('loginGate').style.display='';
+  ['mMsg','oMsg','aMsg','sMsg','cMsg','rMsg'].forEach(i=>document.getElementById(i).style.display='none');
+  document.getElementById('mPhone').value=''; document.getElementById('pinInput').value='';
+  window.scrollTo({top:0});
 }
 
-// ---- SCREEN NAVIGATION (view auto-detected from clicked button) ----
-function go(btn, index){
-  const container = btn.closest('#ownerView') || btn.closest('#memberView');
-  const screens = container.querySelectorAll(':scope .phone > section.screen');
-  const buttons = container.querySelectorAll(':scope .nav button');
+// ---------- OWNER LOGIC ----------
+function daysLeft(expiry){ return Math.ceil((new Date(expiry)-new Date(new Date().toDateString()))/86400000) }
 
-  screens.forEach(s => s.classList.remove('on'));
-  const target = screens[index - 1];   // 1-based index
-  if (target) target.classList.add('on');
+function renderOwner(){
+  const active=D.members.filter(m=>daysLeft(m.expiry)>=0);
+  const expSoon=D.members.filter(m=>{const d=daysLeft(m.expiry);return d>=0&&d<=7});
+  document.getElementById('kpiBox').innerHTML=
+    `<div class="kpi"><b>${D.members.length}</b><span>Total members</span></div>
+     <div class="kpi"><b>${active.length}</b><span>Active</span></div>
+     <div class="kpi"><b style="color:var(--amber)">${expSoon.length}</b><span>Expiring ≤7 din</span></div>
+     <div class="kpi"><b style="color:var(--red)">${D.members.length-active.length}</b><span>Expired</span></div>`;
+  document.getElementById('expList').innerHTML = expSoon.length
+    ? expSoon.map(m=>`<li class="row"><span>${b(m.name)} · ${m.plan}<br><span class="sub" style="margin:0">${m.expiry} — <b style="color:var(--amber)">${daysLeft(m.expiry)} din</b></span></span></li>`).join('')
+    : '<li class="sub" style="margin:0">Koi membership 7 din me khatam nahi ho rahi ✓</li>';
+  document.getElementById('memberList').innerHTML = D.members.length
+    ? D.members.map(m=>`<li class="row"><span><b>${esc(m.name)}</b> · ${m.phone}<br><span class="sub" style="margin:0">${m.plan} · expiry ${m.expiry}</span></span><span><span class="badge ${daysLeft(m.expiry)>=0?'b-green':'b-red'}">${daysLeft(m.expiry)>=0?'ACTIVE':'EXPIRED'}</span> <button class="btn sm red" onclick="delMember('${m.id}')">❌</button></span></li>`).join('')
+    : '<li class="sub" style="margin:0">Abhi koi member nahi — "Add Member" tab se pehla member add karo.</li>';
+  renderReqs();
+}
 
-  if (btn.parentElement.classList.contains('nav')){
-    buttons.forEach(b => b.classList.remove('on'));
+function renderReqs(){
+  const html=D.requests.length
+    ? D.requests.map(r=>`<li class="row"><span><b>${esc(r.name)}</b> · ${r.phone}<br><span class="sub" style="margin:0">${r.plan} · request: ${r.date}</span></span><button class="btn sm dark" onclick="clearReq('${r.id}')">Done ✓</button></li>`).join('')
+    : '<li class="sub" style="margin:0">Koi renewal request pending nahi hai.</li>';
+  document.getElementById('reqList').innerHTML=html;
+  document.getElementById('reqList2').innerHTML=html;
+}
+
+function esc(s){ return String(s).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c])) }
+
+function addMember(){
+  const name=document.getElementById('fName').value.trim();
+  const phone=document.getElementById('fPhone').value.trim();
+  const [plan,price]=document.getElementById('fPlan').value.split('|');
+  const expiry=document.getElementById('fExpiry').value;
+  if(name.length<3){ showMsg('aMsg','Pura naam daalo.',false); return; }
+  if(!/^\d{10}$/.test(phone)){ showMsg('aMsg','Valid 10-digit mobile number daalo.',false); return; }
+  if(D.members.some(m=>m.phone===phone)){ showMsg('aMsg','Ye number pehle se registered hai.',false); return; }
+  if(!expiry){ showMsg('aMsg','Expiry date select karo.',false); return; }
+  D.members.push({id:Date.now().toString(36),name,phone,plan,price:+price,expiry});
+  save(D); renderOwner();
+  document.getElementById('fName').value=''; document.getElementById('fPhone').value=''; document.getElementById('fExpiry').value='';
+  showMsg('aMsg','✅ Member add ho gaya — ab wo apne number se login kar sakta hai.',true);
+}
+
+function delMember(id){
+  if(!confirm('Ye member permanently delete ho jayega. Pakka?')) return;
+  D.members=D.members.filter(m=>m.id!==id);
+  delete D.checkins[id];
+  save(D); renderOwner();
+}
+
+function clearReq(id){ D.requests=D.requests.filter(r=>r.id!==id); save(D); renderReqs(); }
+
+function changePin(){
+  const o=document.getElementById('oldPin').value, p1=document.getElementById('chgPin1').value, p2=document.getElementById('chgPin2').value;
+  if(o!==D.pin){ showMsg('sMsg','Purana PIN galat hai.',false); return; }
+  if(!/^\d{4}$/.test(p1)){ showMsg('sMsg','Naya PIN 4 digit ka hona chahiye.',false); return; }
+  if(p1!==p2){ showMsg('sMsg','Naye PIN match nahi kar rahe.',false); return; }
+  D.pin=p1; save(D);
+  showMsg('sMsg','✅ PIN change ho gaya — naya PIN yahi hai ab.',true);
+}
+
+// ---------- MEMBER LOGIC ----------
+function renderMember(){
+  const m=curMember= D.members.find(x=>x.phone===curMember.phone)||curMember;
+  const d=daysLeft(m.expiry);
+  document.getElementById('mName').textContent=m.name;
+  document.getElementById('mPlan').textContent=`${m.plan} · ₹${m.price}`;
+  document.getElementById('mExpiry').textContent='Expiry: '+m.expiry;
+  document.getElementById('mLeft').textContent = d>=0 ? `${d} din baaki` : 'Membership khatam — renew karo';
+  const st=document.getElementById('mStatus');
+  st.textContent = d>=0 ? (d<=7?'EXPIRING SOON':'ACTIVE') : 'EXPIRED';
+  st.className='badge '+(d>=0?(d<=7?'b-amber':'b-green'):'b-red');
+  const v=(D.checkins[m.id]||[]).length;
+  document.getElementById('mVisits').textContent=v;
+}
+
+function doCheckin(){
+  const id=curMember.id, today=new Date().toISOString().slice(0,10);
+  if(daysLeft(curMember.expiry)<0){ showMsg('cMsg','Membership expired hai — renew karne ke baad check-in milega.',false); return; }
+  D.checkins[id]=D.checkins[id]||[];
+  if(D.checkins[id].includes(today)){ showMsg('cMsg','Aaj ka check-in pehle hi ho gaya hai ✓',true); return; }
+  D.checkins[id].push(today); save(D); renderMember();
+  showMsg('cMsg','✅ Check-in ho gaya — aaj ka visit count ho gaya!',true);
+}
+
+function sendRenew(){
+  const [plan,price]=document.getElementById('rPlan').value.split('|');
+  if(D.requests.some(r=>r.phone===curMember.phone)){ showMsg('rMsg','Aapki renewal request pehle se pending hai.',false); return; }
+  D.requests.push({id:Date.now().toString(36),name:curMember.name,phone:curMember.phone,plan,price:+price,date:new Date().toLocaleDateString('en-IN')});
+  save(D);
+  showMsg('rMsg','✅ Request owner ko bhej di gayi — gym me payment karke plan active karwao.',true);
+}
+
+// ---------- NAV ----------
+function go(btn,index){
+  const container=btn.closest('#ownerView')||btn.closest('#memberView');
+  const screens=container.querySelectorAll(':scope section.screen');
+  screens.forEach(s=>s.classList.remove('on'));
+  if(screens[index-1]) screens[index-1].classList.add('on');
+  if(btn.parentElement.classList.contains('nav')){
+    container.querySelectorAll(':scope .nav button').forEach(b=>b.classList.remove('on'));
     btn.classList.add('on');
   }
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 </script>
 </body>
